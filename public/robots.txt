@@ -1,0 +1,6 @@
+# robots.txt for Clara Gromaches
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://claragromaches.com/sitemap.xml

@@ -1,38 +1,49 @@
 import { NotionRenderer, BlockMapType } from "react-notion";
 import Head from "next/head";
 import Link from "next/link";
-import fetch from "node-fetch";
+import { SITE_CONFIG } from "../lib/config";
+import { getNotionPage } from "../lib/notion";
 
 export async function getStaticProps() {
-  const data: BlockMapType = await fetch(
-    "https://notion-api.splitbee.io/v1/page/c494ce4e4e75480fa189b9da5aa2eadf"
-  ).then(res => res.json());
+  const blockMap = await getNotionPage(SITE_CONFIG.notionPageId);
 
   return {
-    props: {
-      blockMap: data
-    },
-    revalidate: 1
+    props: { blockMap },
+    revalidate: 60
   };
 }
 
-const Home = ({ blockMap }) => (
-  <div>
-    <Head>
-      <style>{`body { margin: 0;}`}</style>
-      <title>Clara Gromaches</title>
-    </Head>
-    <NotionRenderer
-      blockMap={blockMap}
-      fullPage
-      hideHeader
-      customBlockComponents={{
-        page: ({ blockValue, renderComponent }) => (
-          <Link href={`/${blockValue.id}`}>{renderComponent()}</Link>
-        )
-      }}
-    />
-  </div>
-);
+interface Props {
+  blockMap: BlockMapType;
+}
 
-export default Home;
+export default function Home({ blockMap }: Props) {
+  return (
+    <>
+      <Head>
+        <title>{SITE_CONFIG.name}</title>
+        <meta name="description" content={SITE_CONFIG.description} />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={SITE_CONFIG.name} />
+        <meta property="og:description" content={SITE_CONFIG.description} />
+        <meta property="og:url" content={SITE_CONFIG.url} />
+        <meta property="og:site_name" content={SITE_CONFIG.name} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={SITE_CONFIG.name} />
+        <meta name="twitter:description" content={SITE_CONFIG.description} />
+        <link rel="canonical" href={SITE_CONFIG.url} />
+      </Head>
+      <NotionRenderer
+        blockMap={blockMap}
+        fullPage
+        hideHeader
+        customBlockComponents={{
+          page: ({ blockValue, renderComponent }) => (
+            <Link href={`/${blockValue.id}`}>{renderComponent()}</Link>
+          )
+        }}
+      />
+    </>
+  );
+}
